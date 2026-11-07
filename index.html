@@ -69,7 +69,8 @@ textarea { font: inherit; width: 100%; min-height: 70px; padding: 10px; border-r
     <p>Bạn sẽ nghe 20 đoạn giọng nói ngắn. Có đoạn là người thật, có đoạn do máy tổng hợp. Với mỗi đoạn, chấm 5 tiêu chí rồi cho điểm độ tự nhiên chung.</p>
     <ul class="plain">
       <li>Đeo tai nghe, ngồi chỗ yên tĩnh, để âm lượng vừa phải và giữ nguyên suốt bài.</li>
-      <li>Mỗi đoạn có kèm câu gốc. Đọc câu trước, rồi nghe hết đoạn ít nhất một lần. Có thể nghe lại.</li>
+      <li>Nghe hết mỗi đoạn ít nhất một lần. Có thể nghe lại.</li>
+      <li>Không cần biết câu gốc: chấm theo cảm nhận như khi nghe một người nói bình thường.</li>
       <li>Chấm theo cảm nhận của bạn, không bàn với người khác.</li>
       <li>Tiến độ được lưu trên trình duyệt này. Lỡ tải lại trang thì vẫn làm tiếp được.</li>
     </ul>
@@ -121,9 +122,9 @@ const N = 20;
 const CLIPS = Array.from({ length: N }, (_, i) => "clip_" + String(i + 1).padStart(2, "0"));
 const AUDIO_DIR = "clips/";
 const CRITERIA = [
-  ["phat_am", "Phát âm", "Các từ nghe rõ, phụ âm và vần đúng, không bị nuốt chữ hay méo âm."],
-  ["thanh_dieu", "Thanh điệu", "Sáu thanh ngang, huyền, sắc, hỏi, ngã, nặng đúng và rõ; không lẫn hỏi/ngã, sắc/nặng."],
-  ["nhip_ngat", "Nhịp và ngắt nghỉ", "Tốc độ đều, ngắt đúng chỗ theo cụm từ, không dừng giữa từ hay đọc dồn."],
+  ["phat_am", "Phát âm", "Các từ nghe rõ, dễ nghe; không có âm bị méo, bị nuốt hay nghe lạ tai."],
+  ["thanh_dieu", "Thanh điệu", "Các thanh (ngang, huyền, sắc, hỏi, ngã, nặng) nghe rõ và tự nhiên; không có chữ nghe lệch thanh hay gượng."],
+  ["nhip_ngat", "Nhịp và ngắt nghỉ", "Tốc độ vừa phải; ngắt nghỉ hợp với ý câu, không dừng giữa cụm từ hay đọc dồn một hơi."],
   ["ngu_dieu", "Ngữ điệu", "Lên xuống giọng theo câu tự nhiên, có nhấn nhá, không đều đều như máy."],
   ["chat_luong", "Chất lượng âm thanh", "Không rè, vỡ, méo tiếng, tiếng kim loại hay nhiễu nền."],
 ];
