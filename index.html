@@ -1,0 +1,253 @@
+<!doctype html><html lang="vi"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"></head><body>
+<title>Khảo sát giọng nói tiếng Việt</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Be+Vietnam+Pro:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+/* Một cột hẹp, mỗi màn một clip; thang 1–5 là thành phần chính */
+:root {
+  --bg: #f4f6f5; --card: #ffffff; --fg: #17201e; --muted: #5d6b67; --line: #d9e0dd;
+  --accent: #1d6b5f; --accent-fg: #ffffff; --accent-soft: #e2efec; --warn: #a14a12;
+  --sans: "Be Vietnam Pro", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111816; --card: #18211f; --fg: #e5ece9; --muted: #95a59f; --line: #2b3734;
+  --accent: #5cc2ae; --accent-fg: #0b1513; --accent-soft: #1e332e; --warn: #f0a063; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111816; --card: #18211f; --fg: #e5ece9; --muted: #95a59f; --line: #2b3734;
+  --accent: #5cc2ae; --accent-fg: #0b1513; --accent-soft: #1e332e; --warn: #f0a063; color-scheme: dark }
+
+* { box-sizing: border-box }
+[hidden] { display: none !important }
+body { background: var(--bg); color: var(--fg); font-family: var(--sans); font-size: 15px; line-height: 1.55;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); padding-block: 24px 48px; }
+main { max-width: 640px; margin: 0 auto; display: grid; gap: 16px }
+h1 { font-size: 1.5rem; line-height: 1.25; margin: 0; text-wrap: balance; font-weight: 700 }
+h2 { font-size: 1.05rem; margin: 0; font-weight: 600 }
+p { margin: 0 }
+.muted { color: var(--muted) }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 20px; display: grid; gap: 14px; min-width: 0 }
+.eyebrow { font-size: .75rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600 }
+.mono { font-family: var(--mono); font-variant-numeric: tabular-nums }
+ul.plain { margin: 0; padding-left: 1.1em; display: grid; gap: 4px }
+label.field { display: grid; gap: 6px; font-weight: 500 }
+input[type=text] { font: inherit; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--fg) }
+button { font: inherit; cursor: pointer }
+.btn { border: 1px solid var(--accent); background: var(--accent); color: var(--accent-fg); border-radius: 8px; padding: 10px 18px; font-weight: 600 }
+.btn.ghost { background: transparent; color: var(--accent) }
+.btn:disabled { opacity: .4; cursor: not-allowed }
+.btn:focus-visible, .opt:focus-visible, input:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }
+.row { display: flex; gap: 10px; flex-wrap: wrap; align-items: center; justify-content: space-between }
+
+.progress { height: 6px; background: var(--line); border-radius: 3px; overflow: hidden }
+.progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s }
+audio { width: 100% }
+.notice { color: var(--warn); font-size: .9rem }
+
+.crit { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line) }
+.crit:first-of-type { border-top: 0; padding-top: 0 }
+.crit .hint { font-size: .85rem; color: var(--muted) }
+.scale { display: grid; grid-template-columns: repeat(5, 1fr); gap: 6px }
+.opt { border: 1px solid var(--line); background: var(--bg); color: var(--fg); border-radius: 8px; padding: 8px 4px; font-weight: 600; font-variant-numeric: tabular-nums }
+.opt[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-fg) }
+.ends { display: flex; justify-content: space-between; font-size: .75rem; color: var(--muted) }
+.overall .scale { grid-template-columns: 1fr }
+.overall .opt { text-align: left; padding: 10px 14px; display: flex; gap: 12px; align-items: baseline; font-weight: 500 }
+.overall .opt b { font-family: var(--mono); min-width: 1ch }
+.overall { background: var(--accent-soft); border-color: transparent }
+textarea { font: inherit; width: 100%; min-height: 70px; padding: 10px; border-radius: 8px; border: 1px solid var(--line); background: var(--bg); color: var(--fg) }
+@media (prefers-reduced-motion: reduce) { .progress > i { transition: none } }
+</style>
+
+<main id="app">
+  <section class="card" id="intro">
+    <span class="eyebrow">Khảo sát nghe · 20 clip · khoảng 20–25 phút</span>
+    <h1>Đánh giá độ tự nhiên của giọng nói tiếng Việt</h1>
+    <p>Bạn sẽ nghe 20 đoạn giọng nói ngắn. Có đoạn là người thật, có đoạn do máy tổng hợp. Với mỗi đoạn, chấm 5 tiêu chí rồi cho điểm độ tự nhiên chung.</p>
+    <ul class="plain">
+      <li>Đeo tai nghe, ngồi chỗ yên tĩnh, để âm lượng vừa phải và giữ nguyên suốt bài.</li>
+      <li>Nghe hết mỗi đoạn ít nhất một lần. Có thể nghe lại.</li>
+      <li>Chấm theo cảm nhận của bạn, không bàn với người khác.</li>
+      <li>Tiến độ được lưu trên trình duyệt này. Lỡ tải lại trang thì vẫn làm tiếp được.</li>
+    </ul>
+    <label class="field" for="rater">Tên của bạn
+      <input type="text" id="rater" autocomplete="name" placeholder="Ví dụ: Hiep" maxlength="30">
+    </label>
+    <div class="row"><span class="muted" id="resumeNote"></span><button class="btn" id="startBtn" disabled>Bắt đầu</button></div>
+  </section>
+
+  <section class="card" id="clipView" hidden>
+    <div class="row"><span class="eyebrow">Clip <span class="mono" id="pos"></span> / 20</span><span class="muted mono" id="clipId"></span></div>
+    <div class="progress"><i id="bar"></i></div>
+    <audio id="player" controls preload="auto"></audio>
+    <p class="notice" id="audioNote" hidden></p>
+    <div id="crits"></div>
+  </section>
+
+  <section class="card overall" id="overallCard" hidden>
+    <h2>Nhìn chung, giọng nói này tự nhiên đến mức nào?</h2>
+    <div class="scale" id="overall"></div>
+    <label class="field" for="note">Ghi chú (không bắt buộc)
+      <textarea id="note" placeholder="Ví dụ: sai thanh ở chữ thứ 3, ngắt giữa cụm từ…"></textarea>
+    </label>
+  </section>
+
+  <div class="row" id="nav" hidden>
+    <button class="btn ghost" id="prevBtn">Quay lại</button>
+    <span class="muted" id="needNote"></span>
+    <button class="btn" id="nextBtn" disabled>Tiếp</button>
+  </div>
+
+  <section class="card" id="done" hidden>
+    <span class="eyebrow">Hoàn thành</span>
+    <h1>Cảm ơn bạn đã chấm xong 20 clip</h1>
+    <p>Bước cuối: tải file kết quả và gửi cho người tổ chức khảo sát.</p>
+    <div class="row" style="justify-content:flex-start">
+      <button class="btn" id="dlBtn">Tải file kết quả (.csv)</button>
+      <button class="btn ghost" id="copyBtn">Sao chép nội dung</button>
+    </div>
+    <p class="muted" id="dlNote"></p>
+    <textarea id="csvBox" readonly hidden></textarea>
+    <button class="btn ghost" id="reviewBtn" style="justify-self:start">Xem lại câu trả lời</button>
+  </section>
+</main>
+
+<script>
+const N = 20;
+const CLIPS = Array.from({ length: N }, (_, i) => "clip_" + String(i + 1).padStart(2, "0"));
+const AUDIO_DIR = "clips/";
+const CRITERIA = [
+  ["phat_am", "Phát âm", "Các từ nghe rõ, phụ âm và vần đúng, không bị nuốt chữ hay méo âm."],
+  ["thanh_dieu", "Thanh điệu", "Sáu thanh ngang, huyền, sắc, hỏi, ngã, nặng đúng và rõ; không lẫn hỏi/ngã, sắc/nặng."],
+  ["nhip_ngat", "Nhịp và ngắt nghỉ", "Tốc độ đều, ngắt đúng chỗ theo cụm từ, không dừng giữa từ hay đọc dồn."],
+  ["ngu_dieu", "Ngữ điệu", "Lên xuống giọng theo câu tự nhiên, có nhấn nhá, không đều đều như máy."],
+  ["chat_luong", "Chất lượng âm thanh", "Không rè, vỡ, méo tiếng, tiếng kim loại hay nhiễu nền."],
+];
+const OVERALL = ["Rất thiếu tự nhiên", "Thiếu tự nhiên", "Trung bình", "Khá tự nhiên", "Rất tự nhiên"];
+const KEY = "mos-survey-v1";
+const $ = (id) => document.getElementById(id);
+
+let st = load() || { rater: "", order: [], idx: 0, ans: {}, done: false };
+
+function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } }
+function save() { try { localStorage.setItem(KEY, JSON.stringify(st)); } catch {} }
+
+function shuffled(seedStr) {
+  let h = 2166136261; for (const c of seedStr) h = Math.imul(h ^ c.charCodeAt(0), 16777619);
+  const rnd = () => ((h = Math.imul(h ^ (h >>> 15), 2246822507) ^ Math.imul(h ^ (h >>> 13), 3266489909)) >>> 0) / 4294967296;
+  const a = CLIPS.slice();
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(rnd() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+
+/* ---------- intro ---------- */
+$("rater").value = st.rater;
+const answered = Object.keys(st.ans).length;
+if (st.rater && answered) $("resumeNote").textContent = `Đã chấm ${answered}/20, bấm để làm tiếp.`;
+$("rater").addEventListener("input", () => { $("startBtn").disabled = !$("rater").value.trim(); });
+$("startBtn").disabled = !$("rater").value.trim();
+$("startBtn").addEventListener("click", () => {
+  const name = $("rater").value.trim().replace(/[^\p{L}\p{N}_-]+/gu, "_");
+  if (name !== st.rater) st = { rater: name, order: shuffled(name), idx: 0, ans: {}, done: false };
+  if (!st.order.length) st.order = shuffled(name);
+  save(); $("intro").hidden = true;
+  st.done ? showDone() : showClip();
+});
+
+/* ---------- clip screen ---------- */
+function scaleRow(container, values, current, onPick, labels) {
+  container.textContent = "";
+  values.forEach((v, i) => {
+    const b = document.createElement("button");
+    b.type = "button"; b.className = "opt"; b.setAttribute("aria-pressed", String(current === v));
+    if (labels) { const n = document.createElement("b"); n.textContent = v; b.append(n, labels[i]); }
+    else b.textContent = v;
+    b.addEventListener("click", () => onPick(v));
+    container.append(b);
+  });
+}
+
+function cur() { const id = st.order[st.idx]; return (st.ans[id] ||= { plays: 0 }); }
+
+function renderClip() {
+  const id = st.order[st.idx], a = cur();
+  $("pos").textContent = st.idx + 1; $("clipId").textContent = id;
+  $("bar").style.width = (st.idx / N * 100) + "%";
+  const box = $("crits"); box.textContent = "";
+  CRITERIA.forEach(([k, name, hint]) => {
+    const d = document.createElement("div"); d.className = "crit";
+    const h = document.createElement("h2"); h.textContent = name;
+    const p = document.createElement("p"); p.className = "hint"; p.textContent = hint;
+    const sc = document.createElement("div"); sc.className = "scale"; sc.setAttribute("role", "group"); sc.setAttribute("aria-label", name);
+    const ends = document.createElement("div"); ends.className = "ends"; ends.innerHTML = "<span>1 · Rất kém</span><span>5 · Rất tốt</span>";
+    scaleRow(sc, [1, 2, 3, 4, 5], a[k], (v) => { a[k] = v; save(); renderClip(); });
+    d.append(h, p, sc, ends); box.append(d);
+  });
+  scaleRow($("overall"), [1, 2, 3, 4, 5], a.overall, (v) => { a.overall = v; save(); renderClip(); }, OVERALL);
+  $("note").value = a.note || "";
+  const missing = CRITERIA.filter(([k]) => !a[k]).length + (a.overall ? 0 : 1);
+  const needPlay = !a.plays;
+  $("nextBtn").disabled = missing > 0 || needPlay;
+  $("needNote").textContent = needPlay ? "Nghe hết clip trước khi chấm xong" : missing ? `Còn ${missing} mục chưa chấm` : "";
+  $("nextBtn").textContent = st.idx === N - 1 ? "Hoàn thành" : "Tiếp";
+  $("prevBtn").disabled = st.idx === 0;
+}
+
+function showClip() {
+  ["clipView", "overallCard", "nav"].forEach((x) => $(x).hidden = false); $("done").hidden = true;
+  const id = st.order[st.idx];
+  $("audioNote").hidden = true;
+  $("player").src = AUDIO_DIR + id + ".mp3";
+  renderClip(); window.scrollTo({ top: 0 });
+}
+
+$("player").addEventListener("ended", () => { cur().plays++; save(); renderClip(); });
+$("player").addEventListener("error", () => {
+  $("audioNote").hidden = false;
+  $("audioNote").textContent = "Không tải được audio của clip này. Báo người tổ chức kiểm tra thư mục clips/.";
+});
+$("note").addEventListener("input", () => { cur().note = $("note").value; save(); });
+$("prevBtn").addEventListener("click", () => { if (st.idx > 0) { st.idx--; save(); showClip(); } });
+$("nextBtn").addEventListener("click", () => {
+  if (st.idx < N - 1) { st.idx++; save(); showClip(); } else { st.done = true; save(); showDone(); }
+});
+
+/* ---------- done + export ---------- */
+function toCSV() {
+  const cols = ["rater", "clip_id", "order", ...CRITERIA.map((c) => c[0]), "overall", "plays", "note"];
+  const esc = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
+  const rows = st.order.map((id, i) => { const a = st.ans[id] || {};
+    return [st.rater, id, i + 1, ...CRITERIA.map((c) => a[c[0]]), a.overall, a.plays, a.note].map(esc).join(","); });
+  return [cols.join(","), ...rows].join("\n");
+}
+
+function showDone() {
+  ["clipView", "overallCard", "nav"].forEach((x) => $(x).hidden = true);
+  $("done").hidden = false; $("player").pause();
+}
+
+$("dlBtn").addEventListener("click", async () => {
+  const filename = `ratings_${st.rater}.csv`, csv = "﻿" + toCSV();
+  try {
+    const dl = window.claude?.use ? await window.claude.use("downloads") : null;
+    if (dl) { await dl.save({ filename, data: csv }); $("dlNote").textContent = "Đã tải. Gửi file " + filename + " cho người tổ chức."; return; }
+  } catch (e) { /* rơi xuống cách thường */ }
+  try {
+    const url = URL.createObjectURL(new Blob([csv], { type: "text/csv;charset=utf-8" }));
+    const a = document.createElement("a"); a.href = url; a.download = filename; document.body.append(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+    $("dlNote").textContent = "Đã tải. Gửi file " + filename + " cho người tổ chức. Nếu không thấy file, bấm Sao chép nội dung và dán vào tin nhắn.";
+  } catch { $("dlNote").textContent = "Không tải được file. Bấm Sao chép nội dung và dán vào tin nhắn gửi người tổ chức."; }
+});
+
+$("copyBtn").addEventListener("click", async () => {
+  const box = $("csvBox"); box.value = toCSV(); box.hidden = false;
+  try { await navigator.clipboard.writeText(box.value); $("dlNote").textContent = "Đã sao chép. Dán vào tin nhắn gửi người tổ chức."; }
+  catch { box.focus(); box.select(); $("dlNote").textContent = "Chọn toàn bộ nội dung bên dưới rồi sao chép."; }
+});
+
+$("reviewBtn").addEventListener("click", () => { st.done = false; st.idx = 0; save(); showClip(); });
+</script>
+
+</body></html>
