@@ -44,6 +44,8 @@ button { font: inherit; cursor: pointer }
 .progress > i { display: block; height: 100%; background: var(--accent); width: 0; transition: width .2s }
 audio { width: 100% }
 .notice { color: var(--warn); font-size: .9rem }
+.sentence { font-size: 1.15rem; line-height: 1.5; font-weight: 500; padding: 14px 16px; background: var(--accent-soft); border-radius: 8px }
+.sentence small { display: block; font-size: .72rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); font-weight: 600; margin-bottom: 4px }
 
 .crit { display: grid; gap: 8px; padding-top: 12px; border-top: 1px solid var(--line) }
 .crit:first-of-type { border-top: 0; padding-top: 0 }
@@ -67,7 +69,7 @@ textarea { font: inherit; width: 100%; min-height: 70px; padding: 10px; border-r
     <p>Bạn sẽ nghe 20 đoạn giọng nói ngắn. Có đoạn là người thật, có đoạn do máy tổng hợp. Với mỗi đoạn, chấm 5 tiêu chí rồi cho điểm độ tự nhiên chung.</p>
     <ul class="plain">
       <li>Đeo tai nghe, ngồi chỗ yên tĩnh, để âm lượng vừa phải và giữ nguyên suốt bài.</li>
-      <li>Nghe hết mỗi đoạn ít nhất một lần. Có thể nghe lại.</li>
+      <li>Mỗi đoạn có kèm câu gốc. Đọc câu trước, rồi nghe hết đoạn ít nhất một lần. Có thể nghe lại.</li>
       <li>Chấm theo cảm nhận của bạn, không bàn với người khác.</li>
       <li>Tiến độ được lưu trên trình duyệt này. Lỡ tải lại trang thì vẫn làm tiếp được.</li>
     </ul>
@@ -80,6 +82,7 @@ textarea { font: inherit; width: 100%; min-height: 70px; padding: 10px; border-r
   <section class="card" id="clipView" hidden>
     <div class="row"><span class="eyebrow">Clip <span class="mono" id="pos"></span> / 20</span><span class="muted mono" id="clipId"></span></div>
     <div class="progress"><i id="bar"></i></div>
+    <p class="sentence" id="sentence" hidden><small>Câu gốc</small><span id="sentenceText"></span></p>
     <audio id="player" controls preload="auto"></audio>
     <p class="notice" id="audioNote" hidden></p>
     <div id="crits"></div>
@@ -128,6 +131,9 @@ const OVERALL = ["Rất thiếu tự nhiên", "Thiếu tự nhiên", "Trung bìn
 const KEY = "mos-survey-v1";
 const $ = (id) => document.getElementById(id);
 
+let TEXTS = {};
+fetch(AUDIO_DIR + "texts.json").then((r) => r.ok ? r.json() : {}).then((t) => { TEXTS = t || {}; if (!$("clipView").hidden) renderClip(); }).catch(() => {});
+
 let st = load() || { rater: "", order: [], idx: 0, ans: {}, done: false };
 
 function load() { try { return JSON.parse(localStorage.getItem(KEY)); } catch { return null; } }
@@ -173,6 +179,7 @@ function cur() { const id = st.order[st.idx]; return (st.ans[id] ||= { plays: 0 
 function renderClip() {
   const id = st.order[st.idx], a = cur();
   $("pos").textContent = st.idx + 1; $("clipId").textContent = id;
+  $("sentenceText").textContent = TEXTS[id] || ""; $("sentence").hidden = !TEXTS[id];
   $("bar").style.width = (st.idx / N * 100) + "%";
   const box = $("crits"); box.textContent = "";
   CRITERIA.forEach(([k, name, hint]) => {
