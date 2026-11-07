@@ -64,9 +64,9 @@ textarea { font: inherit; width: 100%; min-height: 70px; padding: 10px; border-r
 
 <main id="app">
   <section class="card" id="intro">
-    <span class="eyebrow">Khảo sát nghe · 20 clip · khoảng 20–25 phút</span>
+    <span class="eyebrow">Khảo sát nghe · 20 clip · khoảng 10 phút</span>
     <h1>Đánh giá độ tự nhiên của giọng nói tiếng Việt</h1>
-    <p>Bạn sẽ nghe 20 đoạn giọng nói ngắn. Có đoạn là người thật, có đoạn do máy tổng hợp. Với mỗi đoạn, chấm 5 tiêu chí rồi cho điểm độ tự nhiên chung.</p>
+    <p>Bạn sẽ nghe 20 đoạn giọng nói ngắn. Có đoạn là người thật, có đoạn do máy tổng hợp. Với mỗi đoạn, cho điểm độ tự nhiên từ 1 đến 5.</p>
     <ul class="plain">
       <li>Đeo tai nghe, ngồi chỗ yên tĩnh, để âm lượng vừa phải và giữ nguyên suốt bài.</li>
       <li>Nghe hết mỗi đoạn ít nhất một lần. Có thể nghe lại.</li>
@@ -83,10 +83,8 @@ textarea { font: inherit; width: 100%; min-height: 70px; padding: 10px; border-r
   <section class="card" id="clipView" hidden>
     <div class="row"><span class="eyebrow">Clip <span class="mono" id="pos"></span> / 20</span><span class="muted mono" id="clipId"></span></div>
     <div class="progress"><i id="bar"></i></div>
-    <p class="sentence" id="sentence" hidden><small>Câu gốc</small><span id="sentenceText"></span></p>
     <audio id="player" controls preload="auto"></audio>
     <p class="notice" id="audioNote" hidden></p>
-    <div id="crits"></div>
   </section>
 
   <section class="card overall" id="overallCard" hidden>
@@ -121,19 +119,9 @@ textarea { font: inherit; width: 100%; min-height: 70px; padding: 10px; border-r
 const N = 20;
 const CLIPS = Array.from({ length: N }, (_, i) => "clip_" + String(i + 1).padStart(2, "0"));
 const AUDIO_DIR = "clips/";
-const CRITERIA = [
-  ["phat_am", "Phát âm", "Các từ nghe rõ, dễ nghe; không có âm bị méo, bị nuốt hay nghe lạ tai."],
-  ["thanh_dieu", "Thanh điệu", "Các thanh (ngang, huyền, sắc, hỏi, ngã, nặng) nghe rõ và tự nhiên; không có chữ nghe lệch thanh hay gượng."],
-  ["nhip_ngat", "Nhịp và ngắt nghỉ", "Tốc độ vừa phải; ngắt nghỉ hợp với ý câu, không dừng giữa cụm từ hay đọc dồn một hơi."],
-  ["ngu_dieu", "Ngữ điệu", "Lên xuống giọng theo câu tự nhiên, có nhấn nhá, không đều đều như máy."],
-  ["chat_luong", "Chất lượng âm thanh", "Không rè, vỡ, méo tiếng, tiếng kim loại hay nhiễu nền."],
-];
 const OVERALL = ["Rất thiếu tự nhiên", "Thiếu tự nhiên", "Trung bình", "Khá tự nhiên", "Rất tự nhiên"];
-const KEY = "mos-survey-v1";
+const KEY = "mos-survey-v2";
 const $ = (id) => document.getElementById(id);
-
-let TEXTS = {};
-fetch(AUDIO_DIR + "texts.json").then((r) => r.ok ? r.json() : {}).then((t) => { TEXTS = t || {}; if (!$("clipView").hidden) renderClip(); }).catch(() => {});
 
 let st = load() || { rater: "", order: [], idx: 0, ans: {}, done: false };
 
@@ -180,24 +168,13 @@ function cur() { const id = st.order[st.idx]; return (st.ans[id] ||= { plays: 0 
 function renderClip() {
   const id = st.order[st.idx], a = cur();
   $("pos").textContent = st.idx + 1; $("clipId").textContent = id;
-  $("sentenceText").textContent = TEXTS[id] || ""; $("sentence").hidden = !TEXTS[id];
   $("bar").style.width = (st.idx / N * 100) + "%";
-  const box = $("crits"); box.textContent = "";
-  CRITERIA.forEach(([k, name, hint]) => {
-    const d = document.createElement("div"); d.className = "crit";
-    const h = document.createElement("h2"); h.textContent = name;
-    const p = document.createElement("p"); p.className = "hint"; p.textContent = hint;
-    const sc = document.createElement("div"); sc.className = "scale"; sc.setAttribute("role", "group"); sc.setAttribute("aria-label", name);
-    const ends = document.createElement("div"); ends.className = "ends"; ends.innerHTML = "<span>1 · Rất kém</span><span>5 · Rất tốt</span>";
-    scaleRow(sc, [1, 2, 3, 4, 5], a[k], (v) => { a[k] = v; save(); renderClip(); });
-    d.append(h, p, sc, ends); box.append(d);
-  });
   scaleRow($("overall"), [1, 2, 3, 4, 5], a.overall, (v) => { a.overall = v; save(); renderClip(); }, OVERALL);
   $("note").value = a.note || "";
-  const missing = CRITERIA.filter(([k]) => !a[k]).length + (a.overall ? 0 : 1);
+  const missing = a.overall ? 0 : 1;
   const needPlay = !a.plays;
   $("nextBtn").disabled = missing > 0 || needPlay;
-  $("needNote").textContent = needPlay ? "Nghe hết clip trước khi chấm xong" : missing ? `Còn ${missing} mục chưa chấm` : "";
+  $("needNote").textContent = needPlay ? "Nghe hết clip trước khi chấm xong" : missing ? "Chọn một mức điểm" : "";
   $("nextBtn").textContent = st.idx === N - 1 ? "Hoàn thành" : "Tiếp";
   $("prevBtn").disabled = st.idx === 0;
 }
@@ -223,10 +200,10 @@ $("nextBtn").addEventListener("click", () => {
 
 /* ---------- done + export ---------- */
 function toCSV() {
-  const cols = ["rater", "clip_id", "order", ...CRITERIA.map((c) => c[0]), "overall", "plays", "note"];
+  const cols = ["rater", "clip_id", "order", "overall", "plays", "note"];
   const esc = (v) => { const s = String(v ?? ""); return /[",\n]/.test(s) ? '"' + s.replace(/"/g, '""') + '"' : s; };
   const rows = st.order.map((id, i) => { const a = st.ans[id] || {};
-    return [st.rater, id, i + 1, ...CRITERIA.map((c) => a[c[0]]), a.overall, a.plays, a.note].map(esc).join(","); });
+    return [st.rater, id, i + 1, a.overall, a.plays, a.note].map(esc).join(","); });
   return [cols.join(","), ...rows].join("\n");
 }
 
